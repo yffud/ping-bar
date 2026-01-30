@@ -15,6 +15,11 @@ struct SettingsView: View {
                     set: { viewModel.setShowIconMode($0) }
                 ))
 
+                Toggle("Close on Outside Click", isOn: Binding(
+                    get: { viewModel.closeOnOutsideClick },
+                    set: { viewModel.setCloseOnOutsideClick($0) }
+                ))
+
                 Toggle("Launch at Login", isOn: Binding(
                     get: { viewModel.launchAtLogin },
                     set: { viewModel.setLaunchAtLogin($0) }
@@ -78,6 +83,7 @@ class SettingsViewModel: ObservableObject {
     @Published var internetTarget: String = ""
     @Published var dnsHostname: String = ""
     @Published var showIconMode: Bool = false
+    @Published var closeOnOutsideClick: Bool = true
 
     init() {
         if #available(macOS 13.0, *) {
@@ -89,6 +95,7 @@ class SettingsViewModel: ObservableObject {
         internetTarget = UserDefaults.standard.string(forKey: "internetTarget") ?? ""
         dnsHostname = UserDefaults.standard.string(forKey: "dnsHostname") ?? ""
         showIconMode = UserDefaults.standard.bool(forKey: "showIconMode")
+        closeOnOutsideClick = UserDefaults.standard.object(forKey: "closeOnOutsideClick") as? Bool ?? Defaults.closeOnOutsideClick
     }
 
     func setLaunchAtLogin(_ enabled: Bool) {
@@ -128,5 +135,10 @@ class SettingsViewModel: ObservableObject {
         showIconMode = enabled
         UserDefaults.standard.set(enabled, forKey: "showIconMode")
         NotificationCenter.default.post(name: .displayModeChanged, object: nil)
+    }
+
+    func setCloseOnOutsideClick(_ enabled: Bool) {
+        closeOnOutsideClick = enabled
+        UserDefaults.standard.set(enabled, forKey: "closeOnOutsideClick")
     }
 }

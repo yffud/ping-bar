@@ -8,6 +8,7 @@ class StatusBarController {
     private var popover: NSPopover!
     private var viewModel: DiagnosticsViewModel!
     private var displayModeObserver: NSObjectProtocol?
+    private var eventMonitor: Any?
 
     init() {
         statusItem = NSStatusBar.system.statusItem(withLength: 45)
@@ -113,10 +114,30 @@ class StatusBarController {
         guard let button = statusItem.button else { return }
 
         if popover.isShown {
-            popover.close()
+            closePopover()
         } else {
             viewModel.refresh()
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            startEventMonitor()
+        }
+    }
+
+    private func closePopover() {
+        popover.close()
+        stopEventMonitor()
+    }
+
+    private func startEventMonitor() {
+        guard UserDefaults.standard.object(forKey: "closeOnOutsideClick") as? Bool ?? Defaults.closeOnOutsideClick else { return }
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            self?.closePopover()
+        }
+    }
+
+    private func stopEventMonitor() {
+        if let monitor = eventMonitor {
+            NSEvent.removeMonitor(monitor)
+            eventMonitor = nil
         }
     }
 

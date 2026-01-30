@@ -11,4 +11,5 @@ enum Defaults {
     static let dnsHostname = "google.com"
     static let pingInterval: Double = 1.0
     static let showIconMode = false
+    static let closeOnOutsideClick = true
 }
